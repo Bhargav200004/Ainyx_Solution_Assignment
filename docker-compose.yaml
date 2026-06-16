@@ -40,6 +40,19 @@ services:
     networks:
       - app-network
 
+  go-frontend:
+    container_name: go-frontend
+    build:
+      context: ./go-frontend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - go-backend
+    networks:
+      - app-network
+
 volumes:
   postgres_data:
 

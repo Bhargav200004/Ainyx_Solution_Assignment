@@ -74,6 +74,7 @@ func main() {
 	})
 
 	// Apply global middleware.
+	app.Use(middleware.CORS())
 	app.Use(middleware.RequestID())
 	app.Use(middleware.RequestLogger(log))
 
