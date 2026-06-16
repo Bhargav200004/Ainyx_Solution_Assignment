@@ -1,0 +1,48 @@
+services:
+
+  postgresql:
+    container_name: postgresql
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: ainyx
+      POSTGRES_HOST_AUTH_METHOD: md5
+      POSTGRES_INITDB_ARGS: "--auth-host=md5"
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d ainyx"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  go-backend:
+    container_name: go-backend
+    build:
+      context: ./go-backend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "9090:9090"
+    environment:
+      SERVER_PORT: "9090"
+      DATABASE_URL: "postgres://admin:password123@postgresql:5432/ainyx?sslmode=disable"
+      APP_ENV: "production"
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
